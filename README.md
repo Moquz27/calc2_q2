@@ -20,16 +20,20 @@ and the constants `c` and `d`.
 ## 2. Repository Structure
 
 ```text
-surface_plot_submission/
+calc2_q2/
 ├── README.md
 ├── requirements.txt
 ├── surface_plot.py
+├── design_n_algorithm/
+│   ├── EN.md
+│   └── VI.md
 └── outputs/          # created automatically after running successfully
 ```
 
 - `README.md`: project explanation and usage instructions.
 - `requirements.txt`: required Python packages.
 - `surface_plot.py`: main terminal program.
+- `design_n_algorithm/`: detailed design and algorithm explanation in English and Vietnamese.
 - `outputs/`: stores generated plot images and input records.
 
 ## 3. Requirements
@@ -41,11 +45,15 @@ surface_plot_submission/
 
 ## 4. Installation
 
-First, go to the submission folder:
+First, clone the repository and move into the project folder:
 
 ```bash
-cd surface_plot_submission
+git clone https://github.com/Moquz27/calc2_q2.git
+cd calc2_q2
 ```
+
+If the repository has already been downloaded, simply open a terminal inside
+the `calc2_q2/` folder.
 
 Windows:
 
@@ -73,7 +81,7 @@ python3 -m pip install -r requirements.txt
 
 ## 5. How to Run
 
-Make sure you are inside the `surface_plot_submission/` folder.
+Make sure you are inside the `calc2_q2/` project folder.
 
 ### Windows
 
