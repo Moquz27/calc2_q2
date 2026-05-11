@@ -41,6 +41,12 @@ surface_plot_submission/
 
 ## 4. Installation
 
+First, go to the submission folder:
+
+```bash
+cd surface_plot_submission
+```
+
 Windows:
 
 ```bat
@@ -49,11 +55,8 @@ python -m pip install -r requirements.txt
 
 macOS/Linux:
 
-```bash
-python3 -m pip install -r requirements.txt
-```
-
-Optional virtual environment on macOS/Linux:
+Using a virtual environment is recommended on macOS/Linux to avoid system
+Python or Homebrew Python permission issues:
 
 ```bash
 python3 -m venv .venv
@@ -61,7 +64,16 @@ source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
+If you already have a working Python environment, direct installation is also
+possible:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
 ## 5. How to Run
+
+Make sure you are inside the `surface_plot_submission/` folder.
 
 ### Windows
 
@@ -70,6 +82,14 @@ python surface_plot.py
 ```
 
 ### macOS/Linux
+
+If you use a virtual environment, activate it first:
+
+```bash
+source .venv/bin/activate
+```
+
+Then run:
 
 ```bash
 python3 surface_plot.py
@@ -131,6 +151,9 @@ After successful input, the program:
 - saves the chart as a `.png` file,
 - saves the entered input values as a matching `.txt` file.
 
+The `outputs/` folder is created automatically only after the program runs
+successfully and saves output files.
+
 Output filenames include a timestamp, for example:
 
 ```text
@@ -143,6 +166,8 @@ surface_20260511_153020.txt
 - The program plots surfaces in the explicit form `z = f(x,y)`.
 - It does not plot full implicit surfaces directly, such as
   `x^2 + y^2 + z^2 = 1`.
+- A complete sphere cannot be represented as a single explicit function
+  `z = f(x,y)`. It must be split into an upper half and a lower half.
 - For a sphere, the user can plot the upper half using:
   `f(x,y) = sqrt(1 - x**2 - y**2)`.
 - Some functions may be undefined on parts of the region, which can cause an
