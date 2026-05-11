@@ -51,6 +51,7 @@ First, clone the repository and move into the project folder:
 git clone https://github.com/Moquz27/calc2_q2.git
 cd calc2_q2
 ```
+In case you don't know how to use git, just download the repo as zip and upzip it later. 
 
 If the repository has already been downloaded, simply open a terminal inside
 the `calc2_q2/` folder.
