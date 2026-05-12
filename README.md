@@ -24,6 +24,8 @@ calc2_q2/
 ├── README.md
 ├── requirements.txt
 ├── surface_plot.py
+├── j4f_advance
+│   ├──surface_plot_gui.py
 ├── design_n_algorithm/
 │   ├── EN.md
 │   └── VI.md
@@ -35,6 +37,7 @@ calc2_q2/
 - `surface_plot.py`: main terminal program.
 - `design_n_algorithm/`: detailed design and algorithm explanation in English and Vietnamese.
 - `outputs/`: stores generated plot images and input records.
+- `j4f_advance/`: store GUI version python script, as sane as CMD script but it has GUI
 
 ## 3. Requirements
 
@@ -45,17 +48,21 @@ calc2_q2/
 
 ## 4. Installation
 
+In case you don't know how to use git, just download the repo as zip and upzip it.
+
+Else:
 First, clone the repository and move into the project folder:
 
 ```bash
 git clone https://github.com/Moquz27/calc2_q2.git
 cd calc2_q2
 ```
-In case you don't know how to use git, just download the repo as zip and upzip it later. 
 
 If the repository has already been downloaded, simply open a terminal inside
-the `calc2_q2/` folder.
+the `calc2_q2/` folder, or `cd calc2_q2/` / `cd calc2_q2_zip/ `. Depend on the name of folder.
 
+
+Second. you will need to download necessary packages:
 Windows:
 
 ```bat
@@ -85,14 +92,17 @@ python3 -m pip install -r requirements.txt
 Make sure you are inside the `calc2_q2/` project folder.
 
 ### Windows
+Simply Double Clicl on the py script. 
 
+Or
+Open CMD inside `calc2_q2/` and run:
 ```bat
 python surface_plot.py
 ```
 
 ### macOS/Linux
 
-If you use a virtual environment, activate it first:
+If you're not use a virtual environment, activate it first:
 
 ```bash
 source .venv/bin/activate
@@ -109,7 +119,7 @@ python3 surface_plot.py
 - Use Python math syntax.
 - Use `x**2` instead of `x^2`.
 - `f(x,y)` may use the variables `x` and `y`.
-- `g(y)` and `h(y)` may only use the variable `y`.
+- `g(y)` and `h(y)` only use the variable `y`.
 - `c` and `d` must be numbers.
 - `c < d`.
 - `g(y) <= h(y)` on the interval `[c,d]`.
@@ -127,7 +137,7 @@ d: 2
 Supported common functions and constants include:
 `sin`, `cos`, `tan`, `exp`, `log`, `sqrt`, `Abs`, `pi`, and `E`.
 
-## 7. Mathematical Method
+## 7. Mathematical Method Simply Description of CMD/Terminal version
 
 The projection region is:
 
@@ -170,7 +180,7 @@ surface_20260511_153020.png
 surface_20260511_153020.txt
 ```
 
-## 9. Notes / Limitations
+## 9. Some Notes and Limitations
 
 - The program plots surfaces in the explicit form `z = f(x,y)`.
 - It does not plot full implicit surfaces directly, such as
@@ -181,4 +191,3 @@ surface_20260511_153020.txt
   `f(x,y) = sqrt(1 - x**2 - y**2)`.
 - Some functions may be undefined on parts of the region, which can cause an
   invalid input error.
-- Use valid Python-style mathematical expressions.
