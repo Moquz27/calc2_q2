@@ -226,9 +226,10 @@ def main() -> int:
 def read_float_from_text(text: str, name: str) -> float:
     """Convert stored input text to a finite float with a clear field name."""
     try:
-        value = float(text)
-    except ValueError as error:
-        raise ValueError(f"{name} must be a number") from error
+        expression = parse_math_expression(text, set())
+        value = float(expression.evalf())
+    except (TypeError, ValueError) as error:
+        raise ValueError(f"{name} must be a real number or numeric expression") from error
 
     if not np.isfinite(value):
         raise ValueError(f"{name} must be a finite number")

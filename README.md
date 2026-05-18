@@ -121,7 +121,8 @@ python3 surface_plot.py
 - Use `x**2` instead of `x^2`.
 - `f(x,y)` may use the variables `x` and `y`.
 - `g(y)` and `h(y)` only use the variable `y`.
-- `c` and `d` must be numbers.
+- `c` and `d` must be finite numbers or numeric expressions such as `pi`,
+  `2*pi`, or `sqrt(2)`.
 - `c < d`.
 - For each sampled `y`, the smaller value of `g(y)` and `h(y)` is used as the
   left boundary, and the larger value is used as the right boundary.
