@@ -50,7 +50,7 @@ với y=0, khoảng x sẽ là 0-2
 với y=1, khoảng x sẽ là từ 1-3
 ...
 tiếp tục như vậy. Như hình:
-<img width="1280/2" height="1209/2" alt="telegram-cloud-photo-size-5-6075381573097295960-y" src="https://github.com/user-attachments/assets/d8822de2-af2f-4b53-8d87-8face439ad1e" />
+<img width="640" height="604" alt="telegram-cloud-photo-size-5-6075381573097295960-y" src="https://github.com/user-attachments/assets/d8822de2-af2f-4b53-8d87-8face439ad1e" />
 
 Khi đó cần thêm bước lọc hoặc mask các điểm không hợp lệ. 
 nói cách khác, Code sẽ tạo toàn bộ các điểm theo miền, tức từ khoảng x theo y bé nhất tới khoảng x theo y lớn nhất. 
