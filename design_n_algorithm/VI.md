@@ -48,7 +48,7 @@ với y=0, khoảng x sẽ là 0-2
 với y=1, khoảng x sẽ là từ 1-3
 ...
 tiếp tục như vậy. Như hình:
-<img width="1280" height="1209" alt="telegram-cloud-photo-size-5-6075381573097295960-y" src="https://github.com/user-attachments/assets/d8822de2-af2f-4b53-8d87-8face439ad1e" />
+<img width="1280/2" height="1209/2" alt="telegram-cloud-photo-size-5-6075381573097295960-y" src="https://github.com/user-attachments/assets/d8822de2-af2f-4b53-8d87-8face439ad1e" />
 
 Khi đó cần thêm bước lọc hoặc mask các điểm không hợp lệ. 
 nói cách khác, Code sẽ tạo toàn bộ các điểm theo miền, tức từ khoảng x theo y bé nhất tới khoảng x theo y lớn nhất. 
@@ -69,10 +69,20 @@ Nếu sử dụng phương pháp mask, tập hợp các điểm hợp tệ (còn
 rồi bị lọc dần đi. Tuy nhiên điều này dẫn đến việc khi plot bề mặt, output ra sẽ bị răng cưa ở viền. 
 Ngoài ra còn lãng phí việc tính toán. Đôi lúc số điểm hợp lệ chỉ chiếm 20-30% tổng số điểm sinh ra.
 
-Điều này
-dẫn tới ý tưởng biến đổi một miền tham số chữ nhật đơn giản thành miền cong
+Điều này dẫn tới ý tưởng biến đổi một miền tham số chữ nhật đơn giản thành miền cong
 `D`. Code sử dụng tham số `t` để chạy từ `g(y)` đến `h(y)` với mỗi giá trị `y`
 được lấy mẫu.
+
+Nói 1 cách dễ hiểu
+Code sử dụng t như 1 tham số nội bộ, chạy từ 0 tới 1, với 0 là biên g(y) và 1 là biên h(y).
+Với mỗi 1 giá trị x, sẽ được sinh với công thức
+```
+x=g(y)+t(h(y)−g(y))
+```
+
+ví dụ: 
+với `y=0` 
+x sẽ được sinh với t chạy từ 0 tới 1, biểu thị từ biên g tới h
 
 
 
