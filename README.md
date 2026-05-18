@@ -25,11 +25,7 @@ calc2_q2/
 ├── README.md
 ├── requirements.txt
 ├── surface_plot.py
-├── j4f_advance
-│   ├──surface_plot_gui.py
-├── design_n_algorithm/
-│   ├── EN.md
-│   └── VI.md
+├── VI.md
 └── outputs/          # thư mục này sẽ được tạo tại máy người dùng sau khi chạy thành công lần đầu
 ```
 
@@ -38,7 +34,6 @@ calc2_q2/
 - `surface_plot.py`: source code chính.
 - `design_n_algorithm/`: giải thích chi tiết về thiết kế và thuật toán.
 - `outputs/`: lưu ảnh biểu đồ được tạo và file lưu input.
-- `j4f_advance/`: lưu phiên bản GUI của chương trình Python, logic giống bản CMD nhưng có giao diện đồ họa.
 
 ## 3. Yêu cầu
 
