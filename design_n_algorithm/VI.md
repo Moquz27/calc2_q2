@@ -371,13 +371,8 @@ Chương trình xác thực input ở nhiều bước:
 - các giá trị biên phải hữu hạn.
 - các giá trị `Z` phải hữu hạn.
 
-Nếu validation thất bại, chương trình dừng plotting và in thông báo lỗi rõ ràng
-ra terminal.
+Nếu validation thất bại, chương trình dừng plotting và in thông báo lỗi.
 
-Chương trình không còn báo lỗi chỉ vì `g(y) > h(y)` tại một số điểm sample.
-Thay vào đó, nó dùng giá trị nhỏ hơn làm biên trái và giá trị lớn hơn làm biên
-phải. Việc chọn biên này là kiểm tra số học trên sampled grid, không phải là
-một chứng minh symbolic cho toàn bộ khoảng `[c,d]`.
 
 ## 10. Surface Visualization
 
