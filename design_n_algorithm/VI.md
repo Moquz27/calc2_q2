@@ -232,18 +232,14 @@ hàng. Khi nhân chúng với nhau, NumPy tạo ra một lưới hai chiều đ�
 
 Sau khi mesh được tạo, chương trình tính:
 
-```text
+```
 Z = f(X,Y)
 ```
+Với code là: 
 
-Trong code, bước này là:
-
-```python
+```
 z_grid = np.asarray(f(x_grid, y_grid), dtype=float)
 ```
-
-Vì hàm được tạo bằng `lambdify(..., modules="numpy")`, nó có thể tính trực tiếp
-trên toàn bộ NumPy grid.
 
 ### Step 6 — Visualize the Surface
 
@@ -255,25 +251,25 @@ ax.plot_surface(x_grid, y_grid, z_grid, cmap="viridis", edgecolor="none")
 
 Biểu đồ cũng có nhãn trục, tiêu đề, colorbar, và hai đường biên.
 
+
 ## 7. Expression Parsing and Safety
 
-Chương trình không dùng Python `eval()`. Điều này quan trọng vì `eval()` có thể
-thực thi code Python tùy ý từ input của người dùng, không an toàn.
-
-Thay vào đó, code dùng:
+Code dùng parse expr để phân tích các biểu thức toán học được nhập vào:
 
 ```python
 parse_expr(...)
 ```
 
-với `local_dict` được kiểm soát:
+với `local_dict` được sử dụng kiểm soát biến được dùng, nhằm giới hạn biến đúng:
 
 ```python
 local_dict = {"x": x_symbol, "y": y_symbol}
 ```
 
-Code cũng định nghĩa `SAFE_GLOBAL_DICT`, giới hạn các cấu trúc symbolic và hàm
-toán học được phép. Các hàm và hằng số được hỗ trợ gồm:
+Code cũng định nghĩa `SAFE_GLOBAL_DICT`, giới hạn các cấu trúc hàm
+toán học được phép sử dụng và các hằng số được sử dụng. 
+
+Các hàm và hằng số được hỗ trợ gồm:
 
 ```text
 sin, cos, tan, exp, log, sqrt, Abs, pi, E
@@ -290,6 +286,7 @@ unexpected_symbols = expression.free_symbols - allowed_symbols
 - `f(x,y)` chỉ được dùng `x` và `y`,
 - `g(y)` chỉ được dùng `y`,
 - `h(y)` chỉ được dùng `y`.
+- Biểu thức sử dụng đúng syntax
 
 Nếu biểu thức chứa biến không hợp lệ, chương trình raise `ValueError`.
 
