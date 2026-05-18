@@ -65,7 +65,7 @@ kết quả thu được:
 
 Khó khăn nằm ở chỗ khoảng hợp lệ của `x` thay đổi theo `y`. 
 
-Nếu sử dụng phương pháp mask, tập hợp các điểm hợp tệ (còn gọi là mesh) sinh ra sẽ ở dạng lưới theo hình chữ nhật,
+Nếu sử dụng phương pháp mask, tập hợp các điểm dùng để dựng surface (còn gọi là mesh) sinh ra sẽ ở dạng lưới theo hình chữ nhật,
 rồi bị lọc dần đi. Tuy nhiên điều này dẫn đến việc khi plot bề mặt, output ra sẽ bị răng cưa ở viền. 
 Ngoài ra còn lãng phí việc tính toán. Đôi lúc số điểm hợp lệ chỉ chiếm 20-30% tổng số điểm sinh ra.
 
@@ -77,59 +77,22 @@ Nói 1 cách dễ hiểu
 Code sử dụng t như 1 tham số nội bộ, chạy từ 0 tới 1, với 0 là biên g(y) và 1 là biên h(y).
 Với mỗi 1 giá trị x, sẽ được sinh với công thức
 ```
-x=g(y)+t(h(y)−g(y))
+x = g(y) + t(h(y) - g(y))
 ```
-
-ví dụ: 
-với `y=0` 
-x sẽ được sinh với t chạy từ 0 tới 1, biểu thị từ biên g tới h
+Với mỗi y cố định, t chạy từ 0 đến 1. Khi t=0 thì x=g(y), khi t=1 thì x=h(y), còn khi 0<t<1 thì x nằm giữa hai biên.
+Ví dụ
+y = 0
+t chạy từ 0 - 1
+x với y=0 sẽ được sinh từ biên g(y) tới h(y) tưởng đương t từ 0 tới 1
 
 
 
 ## 3. Design Goals
+KISS :> keep it simple, stupid
 
-Chương trình được thiết kế để rõ ràng và phù hợp với một bài tập Giải tích
-nhiều biến ở bậc đại học. Các mục tiêu thiết kế chính là:
+## 4. Phương pháp được chọn để sử dụng
 
-- giữ code đơn giản, dễ đọc,
-- parse biểu thức toán học một cách an toàn,
-- không dùng Python `eval()`,
-- dùng NumPy cho mảng số và tính toán vector hóa,
-- dùng SymPy cho symbolic parsing và `lambdify()`,
-- dùng Matplotlib cho trực quan hóa 3D,
-- giữ thuật toán đủ tổng quát cho nhiều lựa chọn `g(y)` và `h(y)`,
-- tránh class, framework, hoặc kiến trúc phức tạp không cần thiết.
-
-Implementation được viết theo kiểu thủ tục. Mỗi hàm có một nhiệm vụ rõ ràng:
-parse biểu thức, validate và sinh mesh, lưu input record, và vẽ kết quả.
-
-## 4. Possible Approaches
-
-### 4.1 Direct Rectangular Grid
-
-Một hướng làm là chọn một khoảng toàn cục cho `x`, chọn một khoảng cho `y`, rồi
-tạo lưới chữ nhật trực tiếp trên mặt phẳng `xOy`.
-
-Ưu điểm của cách này là dễ hiểu và dễ code. Tuy nhiên, nó không khớp tốt với
-miền đã cho. Vì khoảng hợp lệ của `x` phụ thuộc vào `y`, lưới chữ nhật trực
-tiếp có thể chứa nhiều điểm nằm ngoài `D`. Ngoài ra, việc chọn cận toàn cục cho
-`x` cũng không đơn giản nếu chưa phân tích trước `g(y)` và `h(y)`.
-
-### 4.2 Rectangular Grid with Masking
-
-Một hướng khác là tạo một lưới chữ nhật lớn, sau đó mask các điểm không thỏa:
-
-```text
-g(y) <= x <= h(y)
-```
-
-Cách này linh hoạt hơn lưới chữ nhật thuần túy. Tuy nhiên, nó lãng phí tính
-toán cho các điểm sau đó bị loại bỏ. Nó cũng có thể làm surface plot kém sạch
-hơn vì vùng bị mask có thể tạo ra khoảng trống hoặc biên không đều. Với một bài
-trực quan hóa calculus thân thiện cho người học, mức phức tạp này là không cần
-thiết.
-
-### 4.3 Parameterization-Based Mesh (Chosen Approach)
+Parameterization
 
 Hướng được chọn là tham số hóa các giá trị `x` hợp lệ bằng công thức:
 
@@ -144,29 +107,25 @@ c <= y <= d
 0 <= t <= 1
 ```
 
-Cách này chỉ sinh các điểm thuộc miền `D`, với điều kiện `g(y) <= h(y)`. Nó
-cũng hoạt động tự nhiên với NumPy broadcasting và tạo ra một lưới số chữ nhật
-sạch trong các biến tham số `(y,t)`.
+Cách này chỉ sinh các điểm thuộc miền `D`, với điều kiện `g(y) <= h(y)`. 
 
-Cách này được chọn vì nó đi trực tiếp từ định nghĩa toán học của miền và vẫn
-đơn giản để cài đặt.
 
-## 5. Mathematical Foundation
 
-### 5.1 Projection Region
 
-Miền chiếu là:
+## 5. Định nghĩa toán học
+
+### 5.1 Projection Region - Miền chiếu
 
 ```text
 D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
 ```
 
-Điều này có nghĩa là `y` chạy từ `c` đến `d`. Với mỗi `y` cố định, giá trị `x`
-chạy từ biên trái `g(y)` đến biên phải `h(y)`.
+Điều này có nghĩa là `y` chạy từ `c` đến `d`. 
+Với mỗi `y` cố định, giá trị `x`chạy từ biên trái `g(y)` đến biên phải `h(y)`.
 
 ### 5.2 Parameterization Formula
 
-Chương trình giới thiệu tham số `t`:
+Code sử dụng tham số `t`:
 
 ```text
 0 <= t <= 1
@@ -184,7 +143,7 @@ Miền tham số là hình chữ nhật:
 (y,t) in [c,d] x [0,1]
 ```
 
-### 5.3 Why This Works
+### 5.3 giải thích phần thông tin trước
 
 Khi `t = 0`:
 
@@ -205,11 +164,12 @@ Khi `0 < t < 1`, giá trị `x` nằm giữa `g(y)` và `h(y)`. Vì vậy, nếu
 g(y) <= x <= h(y)
 ```
 
-Miền tham số chữ nhật `[c,d] x [0,1]` được ánh xạ sang miền chiếu cong `D`.
+Miền tham số chữ nhật `[c,d] x [0,1]` được ánh xạ sang miền chiếu cong `D` với công thức trên
+
 
 ## 6. Numerical Algorithm
 
-### Step 1 — Read User Input
+### Step 1 — Đọc input
 
 Chương trình đọc năm chuỗi từ terminal:
 
@@ -220,14 +180,15 @@ Chương trình đọc năm chuỗi từ terminal:
 - `d`.
 
 Các giá trị này được lưu trong dictionary `input_values` để có thể ghi lại vào
-file `.txt` sau khi vẽ thành công.
+file .txt sau khi vẽ
 
 ### Step 2 — Parse Mathematical Expressions
 
-Các chuỗi `f`, `g`, và `h` được parse bằng SymPy `parse_expr()`. Chương trình
-kiểm tra biểu thức chỉ dùng các biến được phép. Sau đó, trong
+Các chuỗi `f`, `g`, và `h` được parse bằng SymPy `parse_expr()`. 
+sau đó kiểm tra biểu thức chỉ dùng các biến được phép. Tiếp theo trong
 `build_surface_mesh()`, các biểu thức symbolic được chuyển thành hàm số bằng
-`sp.lambdify()`.
+`sp.lambdify()`, nhằm tăng tốc độ xử lý khi cần tính toán hàg loạt điểm để tạo 
+mesh
 
 ### Step 3 — Generate Numerical Samples
 
@@ -249,12 +210,12 @@ và lấy mẫu `t` bằng:
 np.linspace(0.0, 1.0, GRID_SIZE)
 ```
 
-### Step 4 — Construct the Mesh
+### Step 4 — Dựng mesh
 
 Các hàm biên được tính trên các giá trị `y` đã lấy mẫu. Chương trình lưu chúng
 vào `left_boundary` và `right_boundary`.
 
-Sau đó chương trình tạo:
+Sau đó tạo:
 
 ```python
 y_grid = np.repeat(y_values[:, np.newaxis], GRID_SIZE, axis=1)
