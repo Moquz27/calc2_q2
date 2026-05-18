@@ -50,7 +50,7 @@ với y=0, khoảng x sẽ là 0-2
 với y=1, khoảng x sẽ là từ 1-3
 ...
 tiếp tục như vậy. Như hình:
-<img width="1280/2" height="1209/2" alt="telegram-cloud-photo-size-5-6075381573097295960-y" src="https://github.com/user-attachments/assets/d8822de2-af2f-4b53-8d87-8face439ad1e" />
+<img width="640" height="604" alt="telegram-cloud-photo-size-5-6075381573097295960-y" src="https://github.com/user-attachments/assets/d8822de2-af2f-4b53-8d87-8face439ad1e" />
 
 Khi đó cần thêm bước lọc hoặc mask các điểm không hợp lệ. 
 nói cách khác, Code sẽ tạo toàn bộ các điểm theo miền, tức từ khoảng x theo y bé nhất tới khoảng x theo y lớn nhất. 
@@ -79,19 +79,20 @@ Nói 1 cách dễ hiểu
 Code sử dụng `t` như một tham số nội bộ, chạy từ 0 tới 1, với 0 là biên trái
 `min(g(y), h(y))` và 1 là biên phải `max(g(y), h(y))`.
 Với mỗi 1 giá trị x, sẽ được sinh với công thức
+
 ```
 left_boundary = min(g(y), h(y))
 right_boundary = max(g(y), h(y))
 x = left_boundary + t(right_boundary - left_boundary)
 ```
+
 Với mỗi y cố định, t chạy từ 0 đến 1. Khi t=0 thì x là biên trái, khi t=1 thì
 x là biên phải, còn khi 0<t<1 thì x nằm giữa hai biên.
 Ví dụ
+
 y = 0
 t chạy từ 0 - 1
 x với y=0 sẽ được sinh từ biên nhỏ hơn tới biên lớn hơn, tương đương t từ 0 tới 1
-
-
 
 ## 3. Design Goals
 KISS :> keep it simple, stupid
@@ -184,7 +185,7 @@ Khi `0 < t < 1`, giá trị `x` nằm giữa hai đường biên. Vì `left_boun
 min(g(y), h(y)) <= x <= max(g(y), h(y))
 ```
 
-Miền tham số chữ nhật `[c,d] x [0,1]` được ánh xạ sang miền chiếu cong `D` với công thức trên
+Miền tham số chữ nhật `[c,d] x [0,1]` được ánh xạ sang miền chiếu `D` với công thức trên
 
 
 ## 6. Numerical Algorithm
@@ -215,7 +216,7 @@ mesh
 Code sử dụng:
 
 ```python
-GRID_SIZE = 80
+GRID_SIZE = 450
 ```
 
 Chương trình lấy mẫu `y` bằng:
@@ -233,9 +234,11 @@ np.linspace(0.0, 1.0, GRID_SIZE)
 ### Step 4 — Dựng mesh
 
 Các hàm biên được tính trên các giá trị `y` đã lấy mẫu. Chương trình lưu giá
-trị thô vào `g_values` và `h_values`, sau đó tính:
+trị thô vào `g_values` và `h_values`, sau với mỗi giá trị y, so sánh kết quả
+của hàm `g` và `h`. với hàm nào có `values` lớn hơn sẽ là biên phải, giá trị 
+bé hơn thuộc biên trái
 
-```python
+```
 left_boundary = np.minimum(g_values, h_values)
 right_boundary = np.maximum(g_values, h_values)
 ```
@@ -255,6 +258,22 @@ x_grid = left_boundary[:, np.newaxis] + (
 Đoạn này dùng NumPy broadcasting. `left_boundary[:, np.newaxis]` biến biên trái
 thành một cột. `t_values[np.newaxis, :]` biến các giá trị tham số thành một
 hàng. Khi nhân chúng với nhau, NumPy tạo ra một lưới hai chiều đầy đủ.
+
+#### Giải thích thêm về min max:
+Để dễ hiểu hơn
+Giả sử G(y) và h(y) không giao nhau, luôn giữ đúng biên trái và biên phải
+khi đó, không cần phải sử dụng min và max để xác định biên trái và phải.
+công thức sẽ có thể đơn giản hoá thành:
+
+```
+x = g(y) + t * ( h(y) - g(y) )
+```
+
+với `g` là biên trái và `h` là biên phải
+
+Quay lại với vấn đề chính. Cần phải sử dụng min và max nhằm xác định chính xác đường biên phải 
+và đường biên trái để công thức ánh xạ hoạt động đúng cho dù biên trái và phải
+đổi chỗ
 
 ### Step 5 — Evaluate the Surface
 
@@ -325,7 +344,7 @@ Nếu biểu thức chứa biến không hợp lệ, chương trình báo `Value
 `GRID_SIZE` điều khiển số mẫu theo mỗi hướng tham số. 
 
 ```python
-GRID_SIZE = 80
+GRID_SIZE = 450
 ```
 
 Nếu `GRID_SIZE = n`, chương trình tạo `n` mẫu cho `y` và `n` mẫu cho `t`. Mesh
@@ -363,7 +382,7 @@ Nếu phát hiện dữ liệu không hữu hạn, code sẽ báo lỗi thay vì
 
 ## 9. Input Validation
 
-Chương trình xác thực input ở nhiều bước:
+Code xác thực input ở nhiều bước:
 
 - `c` và `d` phải là số hữu hạn hoặc biểu thức số hợp lệ như `pi`, `2*pi`,
   hoặc `sqrt(2)`.
@@ -374,25 +393,20 @@ Chương trình xác thực input ở nhiều bước:
 - các giá trị biên phải hữu hạn.
 - các giá trị `Z` phải hữu hạn.
 
-Nếu validation thất bại, chương trình dừng plotting và in thông báo lỗi rõ ràng
+Nếu xác thực thất bại, chương trình dừng plotting và in thông báo lỗi rõ ràng
 ra terminal.
-
-Chương trình không còn báo lỗi chỉ vì `g(y) > h(y)` tại một số điểm sample.
-Thay vào đó, nó dùng giá trị nhỏ hơn làm biên trái và giá trị lớn hơn làm biên
-phải. Việc chọn biên này là kiểm tra số học trên sampled grid, không phải là
-một chứng minh symbolic cho toàn bộ khoảng `[c,d]`.
 
 ## 10. Surface Visualization
 
 Chương trình dùng Matplotlib 3D axes:
 
-```python
+```
 ax = fig.add_subplot(111, projection="3d")
 ```
 
 Mặt được vẽ bằng:
 
-```python
+```
 ax.plot_surface(x_grid, y_grid, z_grid, cmap="viridis", edgecolor="none")
 ```
 
@@ -403,15 +417,13 @@ Biểu đồ gồm:
 - colorbar cho giá trị `z`,
 - legend.
 
-Code cũng vẽ hai đường biên:
+Code cũng vẽ hai đường curve gốc :
 
-- curve gốc `x = g(y)`,
-- curve gốc `x = h(y)`.
+ ```
+ x = g(y)
+ x = h(y)
+ ```
 
-Các cột đầu/cuối của mesh vẫn là biên trái/phải động được tạo bằng
-`min(g(y), h(y))` và `max(g(y), h(y))`. Tuy nhiên, khi visualization, code tính
-z cho chính `g_values` và `h_values` rồi vẽ hai curve gốc. Vì vậy nếu hai đường
-giao nhau, chúng sẽ giao nhau tự nhiên thay vì bị đổi identity.
 
 ## 11. Automatic Output Saving
 
@@ -419,105 +431,53 @@ Phiên bản hiện tại của `surface_plot.py` có chức năng autosave.
 
 Trước khi hiển thị biểu đồ, chương trình tạo thư mục output:
 
-```python
+```
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 ```
 
 trong đó:
 
-```python
+```
 OUTPUT_DIR = Path(__file__).resolve().parent / "outputs"
 ```
 
 Chương trình lưu biểu đồ thành file `.png` có timestamp:
 
-```text
+```
 surface_YYYYMMDD_HHMMSS.png
 ```
 
-Nó cũng lưu input của người dùng thành file `.txt` cùng timestamp:
+Và lưu input của người dùng thành file `.txt` cùng timestamp:
 
-```text
+```
 surface_YYYYMMDD_HHMMSS.txt
 ```
 
-Figure được lưu bằng:
 
-```python
-fig.savefig(png_path, dpi=150)
-```
 
-Bước này xảy ra trước:
 
-```python
-plt.show()
-```
+## 12. Limitations
 
-Lưu trước `plt.show()` an toàn hơn vì một số backend của Matplotlib có thể làm
-thay đổi hoặc clear figure sau khi cửa sổ hiển thị bị đóng.
-
-## 12. Complexity Discussion
-
-Gọi:
-
-```text
-n = GRID_SIZE
-```
-
-Mesh có khoảng:
-
-```text
-n²
-```
-
-điểm. Vì vậy, độ phức tạp thời gian xấp xỉ:
-
-```text
-O(n²)
-```
-
-Độ phức tạp bộ nhớ cũng xấp xỉ:
-
-```text
-O(n²)
-```
-
-vì chương trình lưu `x_grid`, `y_grid`, và `z_grid`.
-
-`GRID_SIZE` lớn hơn cho surface mượt hơn nhưng tốn thời gian và bộ nhớ hơn.
-`GRID_SIZE` nhỏ hơn chạy nhanh hơn nhưng surface có thể thô hơn.
-
-## 13. Limitations
-
-Chương trình chỉ hỗ trợ các mặt dạng tường minh:
+Chương trình chỉ hỗ trợ các mặt dạng:
 
 ```text
 z = f(x,y)
 ```
 
-Chương trình không trực tiếp hỗ trợ các mặt implicit như:
+Chương trình không trực tiếp hỗ trợ các mặt như:
 
 ```text
 x² + y² + z² = 1
 ```
 
-Một số hàm có thể không xác định trên một phần miền `D`. Ví dụ, căn bậc hai có
+- Một số hàm có thể không xác định trên một phần miền `D`. Ví dụ, căn bậc hai có
 thể nhận giá trị âm tại một số điểm lấy mẫu. Khi đó chương trình có thể báo lỗi
 input không hợp lệ vì giá trị sinh ra không hữu hạn.
 
-Sai số floating-point cũng có thể tạo artifact nhỏ gần biên hoặc gần điểm kỳ
-dị.
+- Sai số floating-point cũng có thể tạo artifact nhỏ gần biên hoặc gần giao điểm 2 biên.
 
-Validation là numerical, không phải symbolic proof. Nó kiểm tra các điểm được
-lấy mẫu thay vì chứng minh điều kiện cho mọi giá trị thực trong `[c,d]`.
 
-Với mỗi giá trị `y`, chương trình chỉ hỗ trợ một đoạn `x` liên tục. Chương
-trình không hỗ trợ miền có lỗ hoặc nhiều đoạn `x` rời nhau cho cùng một `y`.
-
-Nếu muốn vẽ một sphere đầy đủ, cần tách thành nửa trên và nửa dưới, vì một
-sphere đầy đủ không phải là một hàm đơn trị `z = f(x,y)`.
-
-## 14. Example Walkthrough
+## 13. Example Walkthrough
 
 Xét ví dụ:
 
@@ -555,7 +515,7 @@ z = x² + y²
 8. Cuối cùng, Matplotlib vẽ mặt trên miền đã sinh và chương trình lưu cả biểu
 đồ lẫn input record.
 
-## 15. Conclusion
+## 14. Kết luận
 
 Chương trình giải bài toán bằng cách dùng parameterization-based mesh. Cách này
 khớp với định nghĩa toán học của miền:
@@ -564,9 +524,7 @@ khớp với định nghĩa toán học của miền:
 D = {(x,y) | c <= y <= d and min(g(y), h(y)) <= x <= max(g(y), h(y))}
 ```
 
-So với sampling trực tiếp trên hình chữ nhật, phương pháp được chọn tránh sinh
+So với lọc các điểm trực tiếp trên hình chữ nhật, phương pháp được chọn tránh sinh
 nhiều điểm không hợp lệ nằm ngoài miền. Nó cũng giữ implementation đơn giản và
 phù hợp với tính toán vector hóa bằng NumPy.
 
-Nhìn chung, lời giải cân bằng giữa tính đúng toán học, sự đơn giản về mặt số
-học, chất lượng trực quan hóa, và độ dễ đọc của code.
