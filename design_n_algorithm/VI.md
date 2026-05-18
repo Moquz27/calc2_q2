@@ -286,20 +286,20 @@ unexpected_symbols = expression.free_symbols - allowed_symbols
 - `f(x,y)` chỉ được dùng `x` và `y`,
 - `g(y)` chỉ được dùng `y`,
 - `h(y)` chỉ được dùng `y`.
-- Biểu thức sử dụng đúng syntax
+- Biểu thức sử dụng đúng syntax/ đúng các biểu thức, hàm được hỗ trợ.
 
-Nếu biểu thức chứa biến không hợp lệ, chương trình raise `ValueError`.
+Nếu biểu thức chứa biến không hợp lệ, chương trình báo `ValueError`.
 
 ## 8. Numerical Grid Construction
 
-`GRID_SIZE` điều khiển số mẫu theo mỗi hướng tham số. Trong code hiện tại:
+`GRID_SIZE` điều khiển số mẫu theo mỗi hướng tham số. 
 
 ```python
 GRID_SIZE = 80
 ```
 
 Nếu `GRID_SIZE = n`, chương trình tạo `n` mẫu cho `y` và `n` mẫu cho `t`. Mesh
-cuối cùng có khoảng `n²` điểm.
+cuối cùng có `n²` điểm.
 
 Các mảng chính là:
 
@@ -307,12 +307,29 @@ Các mảng chính là:
 - `y_grid`: tất cả tọa độ `y` được lấy mẫu,
 - `z_grid`: các độ cao của mặt sau khi tính `f(x,y)`.
 
-Code cũng xử lý trường hợp `g(y)` hoặc `h(y)` là biểu thức hằng. Nếu một biên
+#### Case đặc biệt
+Đối với case g(y) và h(y) là 1 hằng số
+
+Nếu không chia thành 1 trường hơp riêng biệt, khi xử lý để tạo ra đường biên, 
+thay vì ra 1 mảng gồm nhiều giá trị thì chỉ output ra đúng hằng số được nhập vào 
+input.
+
+Để xử lý trường hợp `g(y)` hoặc `h(y)` là biểu thức hằng. Nếu một biên
 trả về scalar, nó được mở rộng bằng `np.full_like()` để có cùng shape với
 `y_values`.
 
+#### Case đặc biệt 2
 Chương trình kiểm tra các mảng biên và `z_grid` chỉ chứa giá trị hữu hạn. Điều
-này tránh các biểu đồ không hợp lệ do `nan` hoặc `inf`.
+này tránh các biểu đồ không hợp lệ do `nan` hoặc `inf`
+
+##### ví dụ:
+user nhập:
+```
+f(x,y) = 1 / (x - y)
+```
+Khi x = y, sẽ sinh ra điểm vô cực `z = 1 / 0`
+
+Nếu phát hiện dữ liệu không hữu hạn, code sẽ báo lỗi thay vì cố vẽ một surface sai.
 
 ## 9. Input Validation
 
