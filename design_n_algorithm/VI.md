@@ -22,8 +22,8 @@ D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
 - `c`: cận dưới của `y`,
 - `d`: cận trên của `y`.
 
-File `surface_plot.py` đọc các giá trị này từ terminal/cmd, sinh lưới số trên miền
-`D`, tính `z = f(x,y)`, vẽ mặt bằng Matplotlib, và tự động lưu kết quả.
+File `surface_plot.py` đọc các giá trị này từ terminal/cmd, sinh lưới các điểm trên miền
+`D` (sử dụng script build_surface_mesh() ) sau đó tính `z = f(x,y)`, vẽ mặt bằng Matplotlib, và tự động lưu kết quả.
 
 ## 2. Problem Analysis
 
