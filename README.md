@@ -26,10 +26,8 @@ calc2_q2/
 ├── requirements.txt
 ├── surface_plot.py
 ├── j4f_advance
-│   ├──surface_plot_gui.py
-├── design_n_algorithm/
-│   ├── EN.md
-│   └── VI.md
+│   └── surface_plot_gui.py
+├──  VI.md
 └── outputs/          # created automatically after running successfully
 ```
 
