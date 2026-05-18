@@ -25,9 +25,8 @@ D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
 File `surface_plot.py` đọc các giá trị này từ terminal/cmd, sinh lưới các điểm trên miền
 `D` (sử dụng script build_surface_mesh() ) sau đó tính `z = f(x,y)`, vẽ mặt bằng Matplotlib, và tự động lưu kết quả.
 
-## 2. Problem Analysis
-
-Miền chiếu `D` có thể không phải là hình chữ nhật trong mặt phẳng `xOy`. Với
+## 2. Phân tích vấn đề cần giải quyết
+Thứ nhất, miều D, không nhất thiết là hình chữ nhật cố định trong mặt phẳng `xOy`. Vì, với
 mỗi giá trị `y` cố định, khoảng hợp lệ của `x` là:
 
 ```text
@@ -36,13 +35,46 @@ g(y) <= x <= h(y)
 
 Vì hai biên đều phụ thuộc vào `y`, cạnh trái và cạnh phải của miền có thể là
 đường cong. Nếu tạo lưới chữ nhật trực tiếp theo một khoảng `x` toàn cục và một
-khoảng `y`, nhiều điểm sinh ra có thể nằm ngoài miền `D`. Khi đó cần thêm bước
-lọc hoặc mask các điểm không hợp lệ.
+khoảng `y`, nhiều điểm sinh ra có thể nằm ngoài miền `D`. 
 
-Khó khăn kỹ thuật nằm ở chỗ khoảng hợp lệ của `x` thay đổi theo `y`. Điều này
+ví dụ, với input sau:
+```text
+g(y)=y
+h(y)=y+2
+c=0
+d=2
+```
+với y=0, khoảng x sẽ là 0-2
+với y=1, khoảng x sẽ là từ 1-3
+...
+tiếp tục như vậy. Như hình:
+<img width="1280" height="1209" alt="telegram-cloud-photo-size-5-6075381573097295960-y" src="https://github.com/user-attachments/assets/d8822de2-af2f-4b53-8d87-8face439ad1e" />
+
+Khi đó cần thêm bước lọc hoặc mask các điểm không hợp lệ. 
+nói cách khác, Code sẽ tạo toàn bộ các điểm theo miền, tức từ khoảng x theo y bé nhất tới khoảng x theo y lớn nhất. 
+sau đó sẽ sử dụng boolean để giải quyết các điểm sai nằm ngoài miền D.
+Ví dụ: ```valid = (x >= g(y)) & (x <= h(y))```
+
+kết quả thu được:
+``` text
+Điểm	valid
+(0,2)	False
+(1,2)	False
+(3,2)	True
+```
+
+Khó khăn nằm ở chỗ khoảng hợp lệ của `x` thay đổi theo `y`. 
+
+Nếu sử dụng phương pháp mask, tập hợp các điểm hợp tệ (còn gọi là mesh) sinh ra sẽ ở dạng lưới theo hình chữ nhật,
+rồi bị lọc dần đi. Tuy nhiên điều này dẫn đến việc khi plot bề mặt, output ra sẽ bị răng cưa ở viền. 
+Ngoài ra còn lãng phí việc tính toán. Đôi lúc số điểm hợp lệ chỉ chiếm 20-30% tổng số điểm sinh ra.
+
+Điều này
 dẫn tới ý tưởng biến đổi một miền tham số chữ nhật đơn giản thành miền cong
 `D`. Code sử dụng tham số `t` để chạy từ `g(y)` đến `h(y)` với mỗi giá trị `y`
 được lấy mẫu.
+
+
 
 ## 3. Design Goals
 
