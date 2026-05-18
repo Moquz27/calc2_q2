@@ -2,15 +2,13 @@
 
 ## 1. Introduction
 
-Mục tiêu của dự án là xây dựng một chương trình Python đơn giản để trực quan
-hóa một mặt trong không gian ba chiều. Mặt có dạng tường minh:
+Mục tiêu của code là tạo ra một surface trong không gian 3D, có dạng:
 
 ```text
 z = f(x,y)
 ```
 
-Mặt này không được vẽ trên một hình chữ nhật tùy ý. Thay vào đó, nó được vẽ
-trên miền chiếu xuống mặt phẳng `xOy`:
+Mặt này được vẽ trên một hành chiếu xuống mặt phẳng `xOy`:
 
 ```text
 D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
@@ -24,7 +22,7 @@ D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
 - `c`: cận dưới của `y`,
 - `d`: cận trên của `y`.
 
-File `surface_plot.py` đọc các giá trị này từ terminal, sinh lưới số trên miền
+File `surface_plot.py` đọc các giá trị này từ terminal/cmd, sinh lưới số trên miền
 `D`, tính `z = f(x,y)`, vẽ mặt bằng Matplotlib, và tự động lưu kết quả.
 
 ## 2. Problem Analysis
