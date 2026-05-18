@@ -8,10 +8,11 @@ This project is a Python program for visualizing a 3D surface of the form:
 z = f(x,y)
 ```
 
-The surface is drawn above a projection region in the `xOy` plane:
+The surface is drawn above the region between the two boundary curves
+`x = g(y)` and `x = h(y)` in the `xOy` plane:
 
 ```text
-D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
+D = {(x,y) | c <= y <= d and min(g(y), h(y)) <= x <= max(g(y), h(y))}
 ```
 
 The user enters the function `f(x,y)`, the boundary curves `g(y)` and `h(y)`,
@@ -122,7 +123,8 @@ python3 surface_plot.py
 - `g(y)` and `h(y)` only use the variable `y`.
 - `c` and `d` must be numbers.
 - `c < d`.
-- `g(y) <= h(y)` on the interval `[c,d]`.
+- For each sampled `y`, the smaller value of `g(y)` and `h(y)` is used as the
+  left boundary, and the larger value is used as the right boundary.
 
 Example input:
 
@@ -142,14 +144,21 @@ Supported common functions and constants include:
 The projection region is:
 
 ```text
-D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
+D = {(x,y) | c <= y <= d and min(g(y), h(y)) <= x <= max(g(y), h(y))}
 ```
 
-The program samples `y` in `[c,d]`. For each value of `y`, it generates `x`
-using:
+The program samples `y` in `[c,d]`. For each sampled value, it evaluates both
+boundary functions first:
 
 ```text
-x = g(y) + t(h(y)-g(y)), 0 <= t <= 1
+left_boundary = min(g(y), h(y))
+right_boundary = max(g(y), h(y))
+```
+
+Then it generates `x` using:
+
+```text
+x = left_boundary + t(right_boundary-left_boundary), 0 <= t <= 1
 ```
 
 Then it computes:
@@ -191,3 +200,6 @@ surface_20260511_153020.txt
   `f(x,y) = sqrt(1 - x**2 - y**2)`.
 - Some functions may be undefined on parts of the region, which can cause an
   invalid input error.
+- For each value of `y`, the program supports one continuous interval of `x`
+  only. It does not support holes or multiple separate `x` intervals for the
+  same `y`.

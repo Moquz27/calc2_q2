@@ -8,17 +8,18 @@ Mục tiêu của code là tạo ra một surface trong không gian 3D, có dạ
 z = f(x,y)
 ```
 
-Mặt này được vẽ trên một hành chiếu xuống mặt phẳng `xOy`:
+Mặt này được vẽ trên miền nằm giữa hai đường biên `x = g(y)` và `x = h(y)`
+trong mặt phẳng `xOy`:
 
 ```text
-D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
+D = {(x,y) | c <= y <= d and min(g(y), h(y)) <= x <= max(g(y), h(y))}
 ```
 
 Đề bài yêu cầu người dùng nhập:
 
 - `f(x,y)`: hàm độ cao của mặt,
-- `g(y)`: đường biên trái theo biến `x`,
-- `h(y)`: đường biên phải theo biến `x`,
+- `g(y)`: một đường biên theo biến `x`,
+- `h(y)`: đường biên còn lại theo biến `x`,
 - `c`: cận dưới của `y`,
 - `d`: cận trên của `y`.
 
@@ -27,10 +28,11 @@ File `surface_plot.py` đọc các giá trị này từ terminal/cmd, sinh lư�
 
 ## 2. Phân tích vấn đề cần giải quyết
 Thứ nhất, miều D, không nhất thiết là hình chữ nhật cố định trong mặt phẳng `xOy`. Vì, với
-mỗi giá trị `y` cố định, khoảng hợp lệ của `x` là:
+mỗi giá trị `y` cố định, khoảng hợp lệ của `x` là khoảng nằm giữa hai giá trị
+biên:
 
 ```text
-g(y) <= x <= h(y)
+min(g(y), h(y)) <= x <= max(g(y), h(y))
 ```
 
 Vì hai biên đều phụ thuộc vào `y`, cạnh trái và cạnh phải của miền có thể là
@@ -53,7 +55,7 @@ tiếp tục như vậy. Như hình:
 Khi đó cần thêm bước lọc hoặc mask các điểm không hợp lệ. 
 nói cách khác, Code sẽ tạo toàn bộ các điểm theo miền, tức từ khoảng x theo y bé nhất tới khoảng x theo y lớn nhất. 
 sau đó sẽ sử dụng boolean để giải quyết các điểm sai nằm ngoài miền D.
-Ví dụ: ```valid = (x >= g(y)) & (x <= h(y))```
+Ví dụ: ```valid = (x >= min(g(y), h(y))) & (x <= max(g(y), h(y)))```
 
 kết quả thu được:
 ``` text
@@ -70,20 +72,24 @@ rồi bị lọc dần đi. Tuy nhiên điều này dẫn đến việc khi plot
 Ngoài ra còn lãng phí việc tính toán. Đôi lúc số điểm hợp lệ chỉ chiếm 20-30% tổng số điểm sinh ra.
 
 Điều này dẫn tới ý tưởng biến đổi một miền tham số chữ nhật đơn giản thành miền cong
-`D`. Code sử dụng tham số `t` để chạy từ `g(y)` đến `h(y)` với mỗi giá trị `y`
-được lấy mẫu.
+`D`. Code tính cả hai biên trước, sau đó dùng giá trị nhỏ hơn làm biên trái và
+giá trị lớn hơn làm biên phải cho từng giá trị `y` được lấy mẫu.
 
 Nói 1 cách dễ hiểu
-Code sử dụng t như 1 tham số nội bộ, chạy từ 0 tới 1, với 0 là biên g(y) và 1 là biên h(y).
+Code sử dụng `t` như một tham số nội bộ, chạy từ 0 tới 1, với 0 là biên trái
+`min(g(y), h(y))` và 1 là biên phải `max(g(y), h(y))`.
 Với mỗi 1 giá trị x, sẽ được sinh với công thức
 ```
-x = g(y) + t(h(y) - g(y))
+left_boundary = min(g(y), h(y))
+right_boundary = max(g(y), h(y))
+x = left_boundary + t(right_boundary - left_boundary)
 ```
-Với mỗi y cố định, t chạy từ 0 đến 1. Khi t=0 thì x=g(y), khi t=1 thì x=h(y), còn khi 0<t<1 thì x nằm giữa hai biên.
+Với mỗi y cố định, t chạy từ 0 đến 1. Khi t=0 thì x là biên trái, khi t=1 thì
+x là biên phải, còn khi 0<t<1 thì x nằm giữa hai biên.
 Ví dụ
 y = 0
 t chạy từ 0 - 1
-x với y=0 sẽ được sinh từ biên g(y) tới h(y) tưởng đương t từ 0 tới 1
+x với y=0 sẽ được sinh từ biên nhỏ hơn tới biên lớn hơn, tương đương t từ 0 tới 1
 
 
 
@@ -97,7 +103,9 @@ Parameterization
 Hướng được chọn là tham số hóa các giá trị `x` hợp lệ bằng công thức:
 
 ```text
-x = g(y) + t(h(y)-g(y))
+left_boundary = min(g(y), h(y))
+right_boundary = max(g(y), h(y))
+x = left_boundary + t(right_boundary-left_boundary)
 ```
 
 trong đó:
@@ -107,7 +115,15 @@ c <= y <= d
 0 <= t <= 1
 ```
 
-Cách này chỉ sinh các điểm thuộc miền `D`, với điều kiện `g(y) <= h(y)`. 
+Cách cài đặt hiện tại tính:
+
+```text
+left_boundary = min(g(y), h(y))
+right_boundary = max(g(y), h(y))
+```
+
+rồi dùng công thức tham số hóa từ `left_boundary` tới `right_boundary`. Vì vậy
+chương trình xử lý được cả trường hợp hai đường biên đổi vị trí trái/phải.
 
 
 
@@ -117,11 +133,12 @@ Cách này chỉ sinh các điểm thuộc miền `D`, với điều kiện `g(y
 ### 5.1 Projection Region - Miền chiếu
 
 ```text
-D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
+D = {(x,y) | c <= y <= d and min(g(y), h(y)) <= x <= max(g(y), h(y))}
 ```
 
 Điều này có nghĩa là `y` chạy từ `c` đến `d`. 
-Với mỗi `y` cố định, giá trị `x`chạy từ biên trái `g(y)` đến biên phải `h(y)`.
+Với mỗi `y` cố định, giá trị `x` chạy từ giá trị nhỏ hơn trong hai biên
+`g(y)`, `h(y)` đến giá trị lớn hơn.
 
 ### 5.2 Parameterization Formula
 
@@ -134,7 +151,9 @@ Code sử dụng tham số `t`:
 Sau đó định nghĩa:
 
 ```text
-x = g(y) + t(h(y)-g(y))
+left_boundary = min(g(y), h(y))
+right_boundary = max(g(y), h(y))
+x = left_boundary + t(right_boundary-left_boundary)
 ```
 
 Miền tham số là hình chữ nhật:
@@ -148,20 +167,21 @@ Miền tham số là hình chữ nhật:
 Khi `t = 0`:
 
 ```text
-x = g(y)
+x = left_boundary
 ```
 
 Khi `t = 1`:
 
 ```text
-x = h(y)
+x = right_boundary
 ```
 
-Khi `0 < t < 1`, giá trị `x` nằm giữa `g(y)` và `h(y)`. Vì vậy, nếu
-`g(y) <= h(y)`, mọi điểm được sinh ra đều thỏa:
+Khi `0 < t < 1`, giá trị `x` nằm giữa hai đường biên. Vì `left_boundary` và
+`right_boundary` được tính bằng `min()` và `max()` theo từng giá trị `y`, mọi
+điểm được sinh ra đều thỏa:
 
 ```text
-g(y) <= x <= h(y)
+min(g(y), h(y)) <= x <= max(g(y), h(y))
 ```
 
 Miền tham số chữ nhật `[c,d] x [0,1]` được ánh xạ sang miền chiếu cong `D` với công thức trên
@@ -212,8 +232,16 @@ np.linspace(0.0, 1.0, GRID_SIZE)
 
 ### Step 4 — Dựng mesh
 
-Các hàm biên được tính trên các giá trị `y` đã lấy mẫu. Chương trình lưu chúng
-vào `left_boundary` và `right_boundary`.
+Các hàm biên được tính trên các giá trị `y` đã lấy mẫu. Chương trình lưu giá
+trị thô vào `g_values` và `h_values`, sau đó tính:
+
+```python
+left_boundary = np.minimum(g_values, h_values)
+right_boundary = np.maximum(g_values, h_values)
+```
+
+Vì vậy, giá trị nhỏ hơn luôn là biên trái và giá trị lớn hơn luôn là biên phải
+cho từng `y`.
 
 Sau đó tạo:
 
@@ -339,14 +367,16 @@ Chương trình xác thực input ở nhiều bước:
 - `c < d`.
 - `f` chỉ được dùng biến `x` và `y`.
 - `g` và `h` chỉ được dùng biến `y`.
-- `g(y) <= h(y)` trên các giá trị `y` đã lấy mẫu.
+- `g(y)` và `h(y)` phải sinh giá trị hữu hạn trên các điểm `y` đã lấy mẫu.
 - các giá trị biên phải hữu hạn.
 - các giá trị `Z` phải hữu hạn.
 
 Nếu validation thất bại, chương trình dừng plotting và in thông báo lỗi rõ ràng
 ra terminal.
 
-Kiểm tra `g(y) <= h(y)` là kiểm tra số học trên sampled grid. Nó không phải là
+Chương trình không còn báo lỗi chỉ vì `g(y) > h(y)` tại một số điểm sample.
+Thay vào đó, nó dùng giá trị nhỏ hơn làm biên trái và giá trị lớn hơn làm biên
+phải. Việc chọn biên này là kiểm tra số học trên sampled grid, không phải là
 một chứng minh symbolic cho toàn bộ khoảng `[c,d]`.
 
 ## 10. Surface Visualization
@@ -372,8 +402,8 @@ Biểu đồ gồm:
 
 Code cũng vẽ hai đường biên:
 
-- `x = g(y)`,
-- `x = h(y)`.
+- biên trái: `min(g(y), h(y))`,
+- biên phải: `max(g(y), h(y))`.
 
 Hai đường này được lấy từ cột đầu và cột cuối của mesh. Chúng giúp người xem
 nhìn rõ biên của miền chiếu trên mặt 3D.
@@ -476,6 +506,9 @@ dị.
 Validation là numerical, không phải symbolic proof. Nó kiểm tra các điểm được
 lấy mẫu thay vì chứng minh điều kiện cho mọi giá trị thực trong `[c,d]`.
 
+Với mỗi giá trị `y`, chương trình chỉ hỗ trợ một đoạn `x` liên tục. Chương
+trình không hỗ trợ miền có lỗ hoặc nhiều đoạn `x` rời nhau cho cùng một `y`.
+
 Nếu muốn vẽ một sphere đầy đủ, cần tách thành nửa trên và nửa dưới, vì một
 sphere đầy đủ không phải là một hàm đơn trị `z = f(x,y)`.
 
@@ -523,7 +556,7 @@ Chương trình giải bài toán bằng cách dùng parameterization-based mesh
 khớp với định nghĩa toán học của miền:
 
 ```text
-D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
+D = {(x,y) | c <= y <= d and min(g(y), h(y)) <= x <= max(g(y), h(y))}
 ```
 
 So với sampling trực tiếp trên hình chữ nhật, phương pháp được chọn tránh sinh

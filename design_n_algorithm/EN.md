@@ -10,17 +10,17 @@ z = f(x,y)
 ```
 
 The surface is not plotted over an arbitrary rectangle. Instead, it is plotted
-over the projection region:
+over the region between the two boundary curves:
 
 ```text
-D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
+D = {(x,y) | c <= y <= d and min(g(y), h(y)) <= x <= max(g(y), h(y))}
 ```
 
 The assignment requires the user to enter:
 
 - `f(x,y)`: the surface height function,
-- `g(y)`: the left boundary curve for `x`,
-- `h(y)`: the right boundary curve for `x`,
+- `g(y)`: one boundary curve for `x`,
+- `h(y)`: the other boundary curve for `x`,
 - `c`: the lower bound for `y`,
 - `d`: the upper bound for `y`.
 
@@ -31,10 +31,11 @@ with Matplotlib, and automatically saves the result.
 ## 2. Problem Analysis
 
 The projection region `D` may not be a rectangle in the `xOy` plane. For each
-fixed value of `y`, the allowed interval for `x` is:
+fixed value of `y`, the allowed interval for `x` is the interval between the
+two boundary values:
 
 ```text
-g(y) <= x <= h(y)
+min(g(y), h(y)) <= x <= max(g(y), h(y))
 ```
 
 Because both boundaries depend on `y`, the left and right edges of the region
@@ -42,10 +43,11 @@ can curve. If we directly create a rectangular mesh using global `x` and `y`
 ranges, many generated points may lie outside `D`. That approach would require
 extra filtering or masking.
 
-The technical difficulty is that the valid `x` interval changes as `y` changes.
-This naturally leads to transforming a simple rectangular parameter domain into
-the curved region `D`. The code uses a parameter `t` to move from `g(y)` to
-`h(y)` for each sampled value of `y`.
+The technical difficulty is that the valid `x` interval changes as `y` changes,
+and the two curves may also switch which one is on the left. This naturally
+leads to transforming a simple rectangular parameter domain into the curved
+region `D`. The code evaluates both boundary curves first, then moves from the
+smaller boundary value to the larger one for each sampled value of `y`.
 
 ## 3. Design Goals
 
@@ -84,7 +86,7 @@ Another approach is to create a large rectangular grid and then mask all points
 that do not satisfy:
 
 ```text
-g(y) <= x <= h(y)
+min(g(y), h(y)) <= x <= max(g(y), h(y))
 ```
 
 This method is more flexible than a plain rectangular grid. However, it wastes
@@ -98,7 +100,9 @@ not necessary.
 The chosen approach is to parameterize the valid `x` values using:
 
 ```text
-x = g(y) + t(h(y)-g(y))
+left_boundary = min(g(y), h(y))
+right_boundary = max(g(y), h(y))
+x = left_boundary + t(right_boundary-left_boundary)
 ```
 
 where:
@@ -108,9 +112,10 @@ c <= y <= d
 0 <= t <= 1
 ```
 
-This approach generates only points that belong to the region `D`, assuming
-`g(y) <= h(y)`. It also works naturally with NumPy broadcasting and produces a
-clean rectangular numerical mesh in the parameter variables `(y,t)`.
+This approach generates only points that belong to the region `D` and also
+handles cases where `g(y)` and `h(y)` switch left/right positions. It works
+naturally with NumPy broadcasting and produces a clean rectangular numerical
+mesh in the parameter variables `(y,t)`.
 
 This method is chosen because it directly follows the mathematical definition
 of the region and remains simple to implement.
@@ -122,11 +127,11 @@ of the region and remains simple to implement.
 The projection region is:
 
 ```text
-D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
+D = {(x,y) | c <= y <= d and min(g(y), h(y)) <= x <= max(g(y), h(y))}
 ```
 
 This means that `y` moves from `c` to `d`. For each fixed `y`, the value of `x`
-moves from the left boundary `g(y)` to the right boundary `h(y)`.
+moves from the smaller of `g(y)` and `h(y)` to the larger of `g(y)` and `h(y)`.
 
 ### 5.2 Parameterization Formula
 
@@ -139,7 +144,9 @@ The program introduces a parameter `t`:
 Then it defines:
 
 ```text
-x = g(y) + t(h(y)-g(y))
+left_boundary = min(g(y), h(y))
+right_boundary = max(g(y), h(y))
+x = left_boundary + t(right_boundary-left_boundary)
 ```
 
 The parameter domain is the rectangle:
@@ -153,20 +160,21 @@ The parameter domain is the rectangle:
 When `t = 0`:
 
 ```text
-x = g(y)
+x = left_boundary
 ```
 
 When `t = 1`:
 
 ```text
-x = h(y)
+x = right_boundary
 ```
 
-When `0 < t < 1`, the value of `x` lies between `g(y)` and `h(y)`. Therefore,
-if `g(y) <= h(y)`, every generated point satisfies:
+When `0 < t < 1`, the value of `x` lies between the two boundary curves.
+Because `left_boundary` and `right_boundary` are computed with `min()` and
+`max()` for each sampled `y`, every generated point satisfies:
 
 ```text
-g(y) <= x <= h(y)
+min(g(y), h(y)) <= x <= max(g(y), h(y))
 ```
 
 The rectangular parameter domain `[c,d] x [0,1]` is mapped into the curved
@@ -217,7 +225,15 @@ np.linspace(0.0, 1.0, GRID_SIZE)
 ### Step 4 — Construct the Mesh
 
 The boundary functions are evaluated on the sampled `y` values. The program
-stores them as `left_boundary` and `right_boundary`.
+stores the raw arrays as `g_values` and `h_values`. It then computes:
+
+```python
+left_boundary = np.minimum(g_values, h_values)
+right_boundary = np.maximum(g_values, h_values)
+```
+
+This means the smaller boundary value becomes the left boundary and the larger
+boundary value becomes the right boundary for each sampled `y`.
 
 Then it constructs:
 
@@ -334,15 +350,18 @@ The program validates input in several places:
 - `c < d`.
 - `f` may only use `x` and `y`.
 - `g` and `h` may only use `y`.
-- `g(y) <= h(y)` on the sampled `y` values.
+- `g(y)` and `h(y)` must produce finite values on the sampled `y` values.
 - boundary values must be finite.
 - `Z` values must be finite.
 
 If validation fails, the program stops plotting and prints a clear error
 message to the terminal.
 
-The check for `g(y) <= h(y)` is numerical. It is performed on the sampled grid,
-not as a symbolic proof over the entire interval `[c,d]`.
+The program no longer rejects input only because `g(y) > h(y)` at some sampled
+points. Instead, it uses the smaller value as the left boundary and the larger
+value as the right boundary. This boundary selection is numerical and is
+performed on the sampled grid, not as a symbolic proof over the entire interval
+`[c,d]`.
 
 ## 10. Surface Visualization
 
@@ -367,8 +386,8 @@ The plot includes:
 
 The code also plots two boundary curves:
 
-- `x = g(y)`,
-- `x = h(y)`.
+- left boundary: `min(g(y), h(y))`,
+- right boundary: `max(g(y), h(y))`.
 
 These curves are taken from the first and last columns of the mesh. They help
 the viewer see the boundary of the projection region on the 3D surface.
@@ -472,6 +491,10 @@ or singular points.
 The validation is numerical, not a symbolic proof. It checks sampled points
 rather than proving every condition for all real values in `[c,d]`.
 
+For each value of `y`, the program supports one continuous interval of `x`
+only. It does not support holes or multiple separate `x` intervals for the same
+`y`.
+
 If the user wants to plot a full sphere, it must be split into upper and lower
 halves because a full sphere is not a single-valued function `z = f(x,y)`.
 
@@ -519,7 +542,7 @@ The program solves the assignment by using a parameterization-based mesh. This
 matches the mathematical definition of the region:
 
 ```text
-D = {(x,y) | c <= y <= d and g(y) <= x <= h(y)}
+D = {(x,y) | c <= y <= d and min(g(y), h(y)) <= x <= max(g(y), h(y))}
 ```
 
 Compared with direct rectangular sampling, the chosen method avoids generating

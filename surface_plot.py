@@ -1,4 +1,4 @@
-"""Draw z = f(x, y) over D = {(x, y) | c <= y <= d, g(y) <= x <= h(y)}.
+"""Draw z = f(x, y) over the region between x = g(y) and x = h(y).
 
 Example input:
     f(x, y): x**2 + y**2
@@ -89,26 +89,22 @@ def build_surface_mesh(
 
     # First sample y from c to d. Each row of the mesh belongs to one y-value.
     y_values = np.linspace(c, d, GRID_SIZE)
-    left_boundary = np.asarray(g(y_values), dtype=float)
-    right_boundary = np.asarray(h(y_values), dtype=float)
+    g_values = np.asarray(g(y_values), dtype=float)
+    h_values = np.asarray(h(y_values), dtype=float)
 
-    if left_boundary.shape == ():
-        left_boundary = np.full_like(y_values, float(left_boundary))
-    if right_boundary.shape == ():
-        right_boundary = np.full_like(y_values, float(right_boundary))
+    if g_values.shape == ():
+        g_values = np.full_like(y_values, float(g_values))
+    if h_values.shape == ():
+        h_values = np.full_like(y_values, float(h_values))
 
-    if not np.all(np.isfinite(left_boundary)) or not np.all(np.isfinite(right_boundary)):
+    if not np.all(np.isfinite(g_values)) or not np.all(np.isfinite(h_values)):
         raise ValueError("Boundary functions must produce finite numbers on c <= y <= d.")
 
-    if np.any(left_boundary > right_boundary):
-        raise ValueError(
-            "Expected g(y) <= h(y) on the interval [c,d]. "
-            "If you entered the boundary functions in reverse order, "
-            "swap g(y) and h(y)."
-        )
+    left_boundary = np.minimum(g_values, h_values)
+    right_boundary = np.maximum(g_values, h_values)
 
-    # For each fixed y, x moves from g(y) to h(y). The parameter t turns that
-    # changing interval into a rectangular numerical grid.
+    # For each fixed y, x moves from the smaller boundary value to the larger
+    # one. This also handles cases where g(y) and h(y) switch left/right sides.
     t_values = np.linspace(0.0, 1.0, GRID_SIZE)
     y_grid = np.repeat(y_values[:, np.newaxis], GRID_SIZE, axis=1)
     x_grid = left_boundary[:, np.newaxis] + (
@@ -150,14 +146,14 @@ def plot_surface(
 
     surface = ax.plot_surface(x_grid, y_grid, z_grid, cmap="viridis", edgecolor="none")
 
-    # The first and last columns are the two boundary curves x = g(y), x = h(y).
+    # The first and last columns are the left and right boundary curves.
     ax.plot(
         x_grid[:, 0],
         y_grid[:, 0],
         z_grid[:, 0],
         color="black",
         linewidth=2,
-        label="x = g(y)",
+        label="left boundary",
     )
     ax.plot(
         x_grid[:, -1],
@@ -165,7 +161,7 @@ def plot_surface(
         z_grid[:, -1],
         color="crimson",
         linewidth=2,
-        label="x = h(y)",
+        label="right boundary",
     )
 
     ax.set_title(f"Surface z = {sp.sstr(f_expr)}")
@@ -195,7 +191,7 @@ def plot_surface(
 def main() -> int:
     """Read input, build the mesh, save the image, and show the surface plot."""
     print("Surface plotter for z = f(x, y)")
-    print("Region: c <= y <= d and g(y) <= x <= h(y)")
+    print("Region: c <= y <= d and x lies between g(y) and h(y)")
     print("Use Python syntax: x**2, not x^2")
     print("Example: f = x**2 + y**2, g = y, h = y + 2, c = 0, d = 2")
     print()
