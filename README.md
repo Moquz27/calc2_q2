@@ -34,7 +34,7 @@ calc2_q2/
 - `README.md`: project explanation and usage instructions.
 - `requirements.txt`: required Python packages.
 - `surface_plot.py`: main terminal program.
-- `design_n_algorithm/`: detailed design and algorithm explanation in English and Vietnamese.
+- `VI.md`: detailed design and algorithm explanation in Vietnamese.
 - `outputs/`: stores generated plot images and input records.
 - `j4f_advance/`: store GUI version python script, as sane as CMD script but it has GUI
 
