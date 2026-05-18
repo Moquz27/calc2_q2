@@ -20,7 +20,7 @@ import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations
 
 
-GRID_SIZE = 80
+GRID_SIZE = 450
 OUTPUT_DIR = Path(__file__).resolve().parent / "outputs"
 
 x_symbol, y_symbol = sp.symbols("x y")
@@ -78,7 +78,7 @@ def build_surface_mesh(
     h_expr: sp.Expr,
     c: float,
     d: float,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Create X, Y, and Z arrays for the surface over the region D."""
     if c >= d:
         raise ValueError("Expected c < d so the y-interval has positive length.")
@@ -118,7 +118,7 @@ def build_surface_mesh(
     if not np.all(np.isfinite(z_grid)):
         raise ValueError("f(x, y) must produce finite z-values on the sampled region.")
 
-    return x_grid, y_grid, z_grid
+    return x_grid, y_grid, z_grid, y_values, g_values, h_values
 
 
 def save_input_record(output_path: Path, values: dict[str, str]) -> None:
@@ -137,6 +137,9 @@ def plot_surface(
     x_grid: np.ndarray,
     y_grid: np.ndarray,
     z_grid: np.ndarray,
+    y_values: np.ndarray,
+    g_values: np.ndarray,
+    h_values: np.ndarray,
     f_expr: sp.Expr,
     input_values: dict[str, str],
 ) -> tuple[Path, Path]:
@@ -146,22 +149,29 @@ def plot_surface(
 
     surface = ax.plot_surface(x_grid, y_grid, z_grid, cmap="viridis", edgecolor="none")
 
-    # The first and last columns are the left and right boundary curves.
+    f = sp.lambdify((x_symbol, y_symbol), f_expr, modules="numpy")
+    g_z_values = np.asarray(f(g_values, y_values), dtype=float)
+    h_z_values = np.asarray(f(h_values, y_values), dtype=float)
+
+    if not np.all(np.isfinite(g_z_values)) or not np.all(np.isfinite(h_z_values)):
+        raise ValueError("Boundary curves must produce finite z-values.")
+
+    # Plot the original input curves, not the dynamic min/max mesh columns.
     ax.plot(
-        x_grid[:, 0],
-        y_grid[:, 0],
-        z_grid[:, 0],
+        g_values,
+        y_values,
+        g_z_values,
         color="black",
         linewidth=2,
-        label="left boundary",
+        label="x = g(y)",
     )
     ax.plot(
-        x_grid[:, -1],
-        y_grid[:, -1],
-        z_grid[:, -1],
+        h_values,
+        y_values,
+        h_z_values,
         color="crimson",
         linewidth=2,
-        label="right boundary",
+        label="x = h(y)",
     )
 
     ax.set_title(f"Surface z = {sp.sstr(f_expr)}")
@@ -211,8 +221,19 @@ def main() -> int:
         c = read_float_from_text(input_values["c"], "c")
         d = read_float_from_text(input_values["d"], "d")
 
-        x_grid, y_grid, z_grid = build_surface_mesh(f_expr, g_expr, h_expr, c, d)
-        plot_surface(x_grid, y_grid, z_grid, f_expr, input_values)
+        x_grid, y_grid, z_grid, y_values, g_values, h_values = build_surface_mesh(
+            f_expr, g_expr, h_expr, c, d
+        )
+        plot_surface(
+            x_grid,
+            y_grid,
+            z_grid,
+            y_values,
+            g_values,
+            h_values,
+            f_expr,
+            input_values,
+        )
     except (ValueError, TypeError, SyntaxError, sp.SympifyError) as error:
         print(f"Invalid input: {error}", file=sys.stderr)
         return 1

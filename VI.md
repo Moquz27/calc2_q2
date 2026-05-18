@@ -277,7 +277,9 @@ Hàm `plot_surface()` tạo một figure 3D bằng Matplotlib và vẽ mặt b�
 ax.plot_surface(x_grid, y_grid, z_grid, cmap="viridis", edgecolor="none")
 ```
 
-Biểu đồ cũng có nhãn trục, tiêu đề, colorbar, và hai đường biên.
+Biểu đồ cũng có nhãn trục, tiêu đề, colorbar, và hai đường biên. Mesh dùng
+`left_boundary` và `right_boundary` động, nhưng hai đường biên được hiển thị
+vẫn là hai curve gốc do người dùng nhập: `x = g(y)` và `x = h(y)`.
 
 
 ## 7. Expression Parsing and Safety
@@ -403,11 +405,13 @@ Biểu đồ gồm:
 
 Code cũng vẽ hai đường biên:
 
-- biên trái: `min(g(y), h(y))`,
-- biên phải: `max(g(y), h(y))`.
+- curve gốc `x = g(y)`,
+- curve gốc `x = h(y)`.
 
-Hai đường này được lấy từ cột đầu và cột cuối của mesh. Chúng giúp người xem
-nhìn rõ biên của miền chiếu trên mặt 3D.
+Các cột đầu/cuối của mesh vẫn là biên trái/phải động được tạo bằng
+`min(g(y), h(y))` và `max(g(y), h(y))`. Tuy nhiên, khi visualization, code tính
+z cho chính `g_values` và `h_values` rồi vẽ hai curve gốc. Vì vậy nếu hai đường
+giao nhau, chúng sẽ giao nhau tự nhiên thay vì bị đổi identity.
 
 ## 11. Automatic Output Saving
 

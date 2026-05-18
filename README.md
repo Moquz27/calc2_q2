@@ -26,15 +26,17 @@ calc2_q2/
 ├── requirements.txt
 ├── surface_plot.py
 ├── j4f_advance
-│   └── surface_plot_gui.py
-├──  VI.md
+│   ├──surface_plot_gui.py
+├── design_n_algorithm/
+│   ├── EN.md
+│   └── VI.md
 └── outputs/          # created automatically after running successfully
 ```
 
 - `README.md`: project explanation and usage instructions.
 - `requirements.txt`: required Python packages.
 - `surface_plot.py`: main terminal program.
-- `VI.md`: detailed design and algorithm explanation in Vietnamese.
+- `design_n_algorithm/`: detailed design and algorithm explanation in English and Vietnamese.
 - `outputs/`: stores generated plot images and input records.
 - `j4f_advance/`: store GUI version python script, as sane as CMD script but it has GUI
 
@@ -168,6 +170,18 @@ z = f(x,y)
 
 This creates a rectangular numerical grid that represents the curved region
 `D`.
+
+For visualization, the mesh uses the dynamic `left_boundary` and
+`right_boundary`, but the two boundary curves drawn on the chart are still the
+original input curves:
+
+```text
+x = g(y)
+x = h(y)
+```
+
+If the two curves cross, the boundary lines cross naturally instead of changing
+identity.
 
 ## 8. Output
 
