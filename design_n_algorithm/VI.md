@@ -311,8 +311,8 @@ Các mảng chính là:
 Đối với case g(y) và h(y) là 1 hằng số
 
 Nếu không chia thành 1 trường hơp riêng biệt, khi xử lý để tạo ra đường biên, 
-thay vì ra 1 mảng gồm nhiều giá trị thì chỉ output ra đúng hằng số được nhập vào 
-input.
+thay vì trả về một mảng biên có cùng số phần tử với y_values, 
+biểu thức chỉ trả về một giá trị hằng số duy nhất.
 
 Để xử lý trường hợp `g(y)` hoặc `h(y)` là biểu thức hằng. Nếu một biên
 trả về scalar, nó được mở rộng bằng `np.full_like()` để có cùng shape với
@@ -333,12 +333,12 @@ Nếu phát hiện dữ liệu không hữu hạn, code sẽ báo lỗi thay vì
 
 ## 9. Input Validation
 
-Chương trình validate input ở nhiều bước:
+Chương trình xác thực input ở nhiều bước:
 
 - `c` và `d` phải là số hữu hạn.
 - `c < d`.
-- `f` chỉ được dùng `x` và `y`.
-- `g` và `h` chỉ được dùng `y`.
+- `f` chỉ được dùng biến `x` và `y`.
+- `g` và `h` chỉ được dùng biến `y`.
 - `g(y) <= h(y)` trên các giá trị `y` đã lấy mẫu.
 - các giá trị biên phải hữu hạn.
 - các giá trị `Z` phải hữu hạn.
