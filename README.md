@@ -1,24 +1,24 @@
 # Surface Plotter
 
-## 1. Project Overview
+## 1. Tổng quan
 
-This project is a Python program for visualizing a 3D surface of the form:
+Project này là một chương trình Python dùng để vẽ một mặt 3D có dạng:
 
 ```text
 z = f(x,y)
 ```
 
-The surface is drawn above the region between the two boundary curves
-`x = g(y)` and `x = h(y)` in the `xOy` plane:
+Mặt được vẽ phía trên miền nằm giữa hai đường biên
+`x = g(y)` và `x = h(y)` nằm trong mặt phẳn `xOy` :
 
 ```text
 D = {(x,y) | c <= y <= d and min(g(y), h(y)) <= x <= max(g(y), h(y))}
 ```
 
-The user enters the function `f(x,y)`, the boundary curves `g(y)` and `h(y)`,
-and the constants `c` and `d`.
+User sẽ nhập hàm `f(x,y)`, 2 đường giới hạn `g(y)` và `h(y)`,
+và 2 hẳng số `c` và `d`.
 
-## 2. Repository Structure
+## 2. Cấu trúc Repository 
 
 ```text
 calc2_q2/
@@ -30,50 +30,57 @@ calc2_q2/
 ├── design_n_algorithm/
 │   ├── EN.md
 │   └── VI.md
-└── outputs/          # created automatically after running successfully
+└── outputs/          # thư mục này sẽ được tạo tại máy người dùng sau khi chạy thành công lần đầu
 ```
 
-- `README.md`: project explanation and usage instructions.
-- `requirements.txt`: required Python packages.
-- `surface_plot.py`: main terminal program.
-- `design_n_algorithm/`: detailed design and algorithm explanation in English and Vietnamese.
-- `outputs/`: stores generated plot images and input records.
-- `j4f_advance/`: store GUI version python script, as sane as CMD script but it has GUI
+- `README.md`: giải thích project và hướng dẫn sử dụng, cài đặt.
+- `requirements.txt`: các package Python cần thiết.
+- `surface_plot.py`: source code chính.
+- `design_n_algorithm/`: giải thích chi tiết về thiết kế và thuật toán.
+- `outputs/`: lưu ảnh biểu đồ được tạo và file lưu input.
+- `j4f_advance/`: lưu phiên bản GUI của chương trình Python, logic giống bản CMD nhưng có giao diện đồ họa.
 
-## 3. Requirements
+## 3. Yêu cầu
 
-- Python 3.10 or newer recommended
+- Python 3.10++
 - numpy
 - matplotlib
 - sympy
 
-## 4. Installation
+## 4. Quá trình cài đặt
 
-In case you don't know how to use git, just download the repo as zip and upzip it.
+Nếu như máy bạn không có git hoặc không biết dùng git, 
+hãy tải repo xuống dưới dạng zip và unzip.
 
-Else:
-First, clone the repository and move into the project folder:
+Nếu không:
+Đầu tiên, clone repository và cd vào thư mục project:
 
 ```bash
 git clone https://github.com/Moquz27/calc2_q2.git
 cd calc2_q2
 ```
 
-If the repository has already been downloaded, simply open a terminal inside
-the `calc2_q2/` folder, or `cd calc2_q2/` / `cd calc2_q2_zip/ `. Depend on the name of folder.
+Nếu repository đã được tải sẵn, chỉ cần mở terminal trong thư mục
+calc2_q2/: Chuột phải vào thư mục và chọn open cmd/terminal 
+
+hoặc dùng: 
+```cd calc2_q2/``` / 
+```cd calc2_q2_zip/ ``` 
+
+Tuỳ thuộc vào tên folder
 
 
-Second. you will need to download necessary packages:
-Windows:
+Tiếp theo, cần cài các package cần thiết:
+### Windows:
 
 ```bat
 python -m pip install -r requirements.txt
 ```
 
-macOS/Linux:
+### macOS/Linux:
 
-Using a virtual environment is recommended on macOS/Linux to avoid system
-Python or Homebrew Python permission issues:
+Nên sử dụng virtual environment (venv) trên macOS/Linux để tránh các vấn đề 
+về quyền của Python hệ thống hoặc Homebrew Python:
 
 ```bash
 python3 -m venv .venv
@@ -81,35 +88,30 @@ source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
-If you already have a working Python environment, direct installation is also
-possible:
-
-```bash
-python3 -m pip install -r requirements.txt
-```
-
 ## 5. How to Run
 
-Make sure you are inside the `calc2_q2/` project folder.
+Đảm bảo đã cd đến thư mục chứa file .py
 
 ### Windows
-Simply Double Clicl on the py script. 
+Double click vào file src pyhton
 
-Or
-Open CMD inside `calc2_q2/` and run:
+Hoặc
+
+Chạy CMD trong `calc2_q2/` và chạy:
+
 ```bat
 python surface_plot.py
 ```
 
 ### macOS/Linux
 
-If you're not use a virtual environment, activate it first:
+Kích hoạt venv trước:
 
 ```bash
 source .venv/bin/activate
 ```
 
-Then run:
+Và chạy:
 
 ```bash
 python3 surface_plot.py
@@ -117,15 +119,14 @@ python3 surface_plot.py
 
 ## 6. Input Rules
 
-- Use Python math syntax.
-- Use `x**2` instead of `x^2`.
-- `f(x,y)` may use the variables `x` and `y`.
-- `g(y)` and `h(y)` only use the variable `y`.
-- `c` and `d` must be finite numbers or numeric expressions such as `pi`,
-  `2*pi`, or `sqrt(2)`.
+- Sử dụng cú pháp toán học của Python.
+- Dùng `x**2` thay vì `x^2`.
+- `f(x,y)` được phép dùng các biến `x` và `y`.
+- `g(y)` và `h(y)` chỉ được dùng biến `y`.
+- `c` và `d` phải là số hữu hạn hoặc biểu thức số như `pi`,
+  `2*pi`, hoặc `sqrt(2)`.
 - `c < d`.
-- For each sampled `y`, the smaller value of `g(y)` and `h(y)` is used as the
-  left boundary, and the larger value is used as the right boundary.
+
 
 Example input:
 
@@ -137,82 +138,23 @@ c: 0
 d: 2
 ```
 
-Supported common functions and constants include:
-`sin`, `cos`, `tan`, `exp`, `log`, `sqrt`, `Abs`, `pi`, and `E`.
+Các hàm và biến hỗ trợ:
+`sin`, `cos`, `tan`, `exp`, `log`, `sqrt`, `Abs`, `pi`, `E`.
 
-## 7. Mathematical Method Simply Description of CMD/Terminal version
+## 7. Output
 
-The projection region is:
+Sau khi nhập input hợp lệ, chương trình sẽ:
 
-```text
-D = {(x,y) | c <= y <= d and min(g(y), h(y)) <= x <= max(g(y), h(y))}
-```
+- mở cửa sổ biểu đồ 3D bằng Matplotlib,
+- tự động tạo thư mục `outputs/`,
+- lưu biểu đồ dưới dạng file `.png`,
+- lưu các giá trị input đã nhập dưới dạng file `.txt` tương ứng.
 
-The program samples `y` in `[c,d]`. For each sampled value, it evaluates both
-boundary functions first:
+Thư mục `outputs/` chỉ được tạo tự động sau khi chương trình chạy thành công
+và lưu output.
 
-```text
-left_boundary = min(g(y), h(y))
-right_boundary = max(g(y), h(y))
-```
-
-Then it generates `x` using:
-
-```text
-x = left_boundary + t(right_boundary-left_boundary), 0 <= t <= 1
-```
-
-Then it computes:
-
-```text
-z = f(x,y)
-```
-
-This creates a rectangular numerical grid that represents the curved region
-`D`.
-
-For visualization, the mesh uses the dynamic `left_boundary` and
-`right_boundary`, but the two boundary curves drawn on the chart are still the
-original input curves:
-
-```text
-x = g(y)
-x = h(y)
-```
-
-If the two curves cross, the boundary lines cross naturally instead of changing
-identity.
-
-## 8. Output
-
-After successful input, the program:
-
-- opens a 3D Matplotlib chart window,
-- automatically creates the `outputs/` folder,
-- saves the chart as a `.png` file,
-- saves the entered input values as a matching `.txt` file.
-
-The `outputs/` folder is created automatically only after the program runs
-successfully and saves output files.
-
-Output filenames include a timestamp, for example:
+Tên file output sẽ chứa timestamp, ví dụ:
 
 ```text
 surface_20260511_153020.png
 surface_20260511_153020.txt
-```
-
-## 9. Some Notes and Limitations
-
-- The program plots surfaces in the explicit form `z = f(x,y)`.
-- It does not plot full implicit surfaces directly, such as
-  `x^2 + y^2 + z^2 = 1`.
-- A complete sphere cannot be represented as a single explicit function
-  `z = f(x,y)`. It must be split into an upper half and a lower half.
-- For a sphere, the user can plot the upper half using:
-  `f(x,y) = sqrt(1 - x**2 - y**2)`.
-- Some functions may be undefined on parts of the region, which can cause an
-  invalid input error.
-- For each value of `y`, the program supports one continuous interval of `x`
-  only. It does not support holes or multiple separate `x` intervals for the
-  same `y`.
