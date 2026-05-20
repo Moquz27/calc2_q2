@@ -1,12 +1,12 @@
-"""Draw z = f(x, y) over the region between x = g(y) and x = h(y).
+"""Draw z = f(x, y) over the region between x = g(y) and x = h(y), c ≤ y ≤ d
 
-Example input:
-    f(x, y): x**2 + y**2
-    g(y): y
-    h(y): y + 2
-    c: 0
-    d: 2
+=========
+Author: Moquz27 - Phan Gia Kiet - 2551131
+For more project like this: https://github.com/Moquz27/calc2_q2
+=========
 """
+
+
 
 from __future__ import annotations
 
@@ -26,7 +26,6 @@ OUTPUT_DIR = Path(__file__).resolve().parent / "outputs"
 x_symbol, y_symbol = sp.symbols("x y")
 
 SAFE_GLOBAL_DICT = {
-    "__builtins__": {},
     "Integer": sp.Integer,
     "Float": sp.Float,
     "Rational": sp.Rational,
@@ -46,8 +45,9 @@ SAFE_GLOBAL_DICT = {
 }
 
 
+### 	Parse biểu thức toán học 
 def parse_math_expression(text: str, allowed_symbols: set[sp.Symbol]) -> sp.Expr:
-    """Parse a user expression and reject variables outside allowed_symbols."""
+    
     if not text:
         raise ValueError("math expression cannot be empty")
 
@@ -71,7 +71,7 @@ def parse_math_expression(text: str, allowed_symbols: set[sp.Symbol]) -> sp.Expr
 
     return expression
 
-
+### Tạo mesh cho miền giữa g(Y) và h(Y))
 def build_surface_mesh(
     f_expr: sp.Expr,
     g_expr: sp.Expr,
@@ -79,10 +79,10 @@ def build_surface_mesh(
     c: float,
     d: float,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Create X, Y, and Z arrays for the surface over the region D."""
+     
     if c >= d:
         raise ValueError("Expected c < d so the y-interval has positive length.")
-
+    # khai báo hàm funtion
     f = sp.lambdify((x_symbol, y_symbol), f_expr, modules="numpy")
     g = sp.lambdify(y_symbol, g_expr, modules="numpy")
     h = sp.lambdify(y_symbol, h_expr, modules="numpy")
@@ -91,36 +91,36 @@ def build_surface_mesh(
     y_values = np.linspace(c, d, GRID_SIZE)
     g_values = np.asarray(g(y_values), dtype=float)
     h_values = np.asarray(h(y_values), dtype=float)
-
+    #kiểm tra input của g và h là hằng số hay hàm số
     if g_values.shape == ():
         g_values = np.full_like(y_values, float(g_values))
     if h_values.shape == ():
         h_values = np.full_like(y_values, float(h_values))
-
+    # kiểm tra hàm có chứa số vô cực không
     if not np.all(np.isfinite(g_values)) or not np.all(np.isfinite(h_values)):
         raise ValueError("Boundary functions must produce finite numbers on c <= y <= d.")
-
+    #khai báo biến 2 biên
     left_boundary = np.minimum(g_values, h_values)
     right_boundary = np.maximum(g_values, h_values)
 
-    # For each fixed y, x moves from the smaller boundary value to the larger
-    # one. This also handles cases where g(y) and h(y) switch left/right sides.
+     
+     #tạo mesh x y
     t_values = np.linspace(0.0, 1.0, GRID_SIZE)
     y_grid = np.repeat(y_values[:, np.newaxis], GRID_SIZE, axis=1)
     x_grid = left_boundary[:, np.newaxis] + (
         right_boundary - left_boundary
     )[:, np.newaxis] * t_values[np.newaxis, :]
-
+    #tạo z
     z_grid = np.asarray(f(x_grid, y_grid), dtype=float)
     if z_grid.shape == ():
         z_grid = np.full_like(x_grid, float(z_grid))
-
+    # validate
     if not np.all(np.isfinite(z_grid)):
         raise ValueError("f(x, y) must produce finite z-values on the sampled region.")
 
     return x_grid, y_grid, z_grid, y_values, g_values, h_values
 
-
+### lưu input 
 def save_input_record(output_path: Path, values: dict[str, str]) -> None:
     """Save the user's input values beside the generated chart."""
     lines = [
@@ -132,7 +132,7 @@ def save_input_record(output_path: Path, values: dict[str, str]) -> None:
     ]
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-
+### vẽ đồ thị 3d
 def plot_surface(
     x_grid: np.ndarray,
     y_grid: np.ndarray,
@@ -143,20 +143,20 @@ def plot_surface(
     f_expr: sp.Expr,
     input_values: dict[str, str],
 ) -> tuple[Path, Path]:
-    """Plot the computed surface and autosave the chart before showing it."""
+    # vẽ char và lưu chart
     fig = plt.figure(figsize=(9, 7))
     ax = fig.add_subplot(111, projection="3d")
-
+    #vẽ chart
     surface = ax.plot_surface(x_grid, y_grid, z_grid, cmap="viridis", edgecolor="none")
-
+    # tính z value của 2 đừng biên nhằm vẽ 2 đường biên ở dạng 3d
     f = sp.lambdify((x_symbol, y_symbol), f_expr, modules="numpy")
     g_z_values = np.asarray(f(g_values, y_values), dtype=float)
     h_z_values = np.asarray(f(h_values, y_values), dtype=float)
-
+    # valtdate toàn bộ đều là điểm hữu hạn
     if not np.all(np.isfinite(g_z_values)) or not np.all(np.isfinite(h_z_values)):
         raise ValueError("Boundary curves must produce finite z-values.")
 
-    # Plot the original input curves, not the dynamic min/max mesh columns.
+    #vẽ 2 đường biên
     ax.plot(
         g_values,
         y_values,
@@ -173,7 +173,7 @@ def plot_surface(
         linewidth=2,
         label="x = h(y)",
     )
-
+    # thêm metadata cho chart
     ax.set_title(f"Surface z = {sp.sstr(f_expr)}")
     ax.set_xlabel("x")
     ax.set_ylabel("y")
@@ -183,7 +183,7 @@ def plot_surface(
 
     plt.tight_layout()
 
-    # Save before plt.show(); saving after show can produce blank files.
+    
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     png_path = OUTPUT_DIR / f"surface_{timestamp}.png"
@@ -197,9 +197,9 @@ def plot_surface(
     plt.show()
     return png_path, txt_path
 
-
+### pipeline
 def main() -> int:
-    """Read input, build the mesh, save the image, and show the surface plot."""
+     
     print("Surface plotter for z = f(x, y)")
     print("Region: c <= y <= d and x lies between g(y) and h(y)")
     print("Use Python syntax: x**2, not x^2")
@@ -237,15 +237,13 @@ def main() -> int:
     except (ValueError, TypeError, SyntaxError, sp.SympifyError) as error:
         print(f"Invalid input: {error}", file=sys.stderr)
         return 1
-    except KeyboardInterrupt:
-        print("\nCancelled.")
-        return 1
+   
 
     return 0
 
-
+### chuyển cd sang số thực
 def read_float_from_text(text: str, name: str) -> float:
-    """Convert stored input text to a finite float with a clear field name."""
+    
     try:
         expression = parse_math_expression(text, set())
         value = float(expression.evalf())
