@@ -1,4 +1,4 @@
-"""Draw z = f(x, y) over the region between x = g(y) and x = h(y), c ≤ y ≤ d
+"""
 
 =========
 Author: Moquz27 - Phan Gia Kiet - 2551131
